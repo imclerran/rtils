@@ -17,6 +17,10 @@ __Maybe__
 - `with_default : Maybe a, a -> a`
 - `map_with_default : Maybe a, (a -> b), b -> b`
 
+__NumUtils__
+- `approx_eq : Frac a, Frac a -> Bool`
+- `approx_eq_out_to : Frac a, Frac a, Num b -> Bool`
+
 __StrUtils__
 - `capitalize : Str -> Str`
 - `lowercase : Str -> Str`
