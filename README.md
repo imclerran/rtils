@@ -9,33 +9,43 @@ A collection of commonly used functions and types for Roc.
 ## Modules:
 
 __ListUtils__
-- `split_if : List a, (a -> Bool) -> List (List a)`
-- `split_at_indices : List a, List U64 -> List (List a)`
-- `split_with_delims : List a, (a -> Bool) -> List (List a)`
-- `split_with_delims_head : List a, (a -> Bool) -> List (List a)`
-- `split_with_delims_tail : List a, (a -> Bool) -> List (List a)`
+```roc
+split_if : List a, (a -> Bool) -> List (List a)
+split_at_indices : List a, List U64 -> List (List a)
+split_with_delims : List a, (a -> Bool) -> List (List a)
+split_with_delims_head : List a, (a -> Bool) -> List (List a)
+split_with_delims_tail : List a, (a -> Bool) -> List (List a)
+```
 
 __Maybe__
-- `Maybe a : [Some a, None]`
-- `map : Maybe a, (a -> b) -> Maybe b`
-- `with_default : Maybe a, a -> a`
-- `map_with_default : Maybe a, (a -> b), b -> b`
+```roc
+Maybe a : [Some a, None]
+map : Maybe a, (a -> b) -> Maybe b
+with_default : Maybe a, a -> a
+map_with_default : Maybe a, (a -> b), b -> b
+```
 
 __NumUtils__
-- `approx_eq : Frac a, Frac a -> Bool`
-- `approx_eq_out_to : Frac a, Frac a, Num b -> Bool`
+```roc
+approx_eq : Frac a, Frac a -> Bool
+approx_eq_out_to : Frac a, Frac a, Num b -> Bool
+```
 
 __StrUtils__
-- `capitalize : Str -> Str`
-- `lowercase : Str -> Str`
-- `uppercase : Str -> Str`
-- `pad_left : Str, U8, U64 -> Result Str [InvalidASCII]`
-- `pad_right : Str, U8, U64 -> Result Str [InvalidASCII]`
-- `pad_left_ascii : Str, U8, U64 -> Str`
-- `pad_right_ascii : Str, U8, U64 -> Str`
+```roc
+capitalize : Str -> Str
+lowercase : Str -> Str
+uppercase : Str -> Str
+pad_left : Str, U8, U64 -> Result Str [InvalidASCII]
+pad_right : Str, U8, U64 -> Result Str [InvalidASCII]
+pad_left_ascii : Str, U8, U64 -> Str
+pad_right_ascii : Str, U8, U64 -> Str
+```
 
 __Unsafe__
-- `unwrap : Result a err -> a`
+```roc
+unwrap : Result a err, Str -> a
+```
 
 <!-- LINKS -->
 [roc_badge]: https://img.shields.io/endpoint?url=https%3A%2F%2Fpastebin.com%2Fraw%2FcFzuCCd7
