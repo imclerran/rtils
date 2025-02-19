@@ -86,7 +86,7 @@ split_with_delims = |list, predicate|
             when lists is
                 [.. as sublists, []] ->
                     when is_delimiter(value) is
-                        Delim -> List.join([sublists, [[value]], []])
+                        Delim -> List.join([sublists, [[value]], [[]]])
                         NotDelim -> List.append(sublists, [value])
 
                 [.. as sublists, sublist] ->
@@ -109,6 +109,9 @@ expect [1, 0] |> split_with_delims(|x| x == 1) == [[1], [0]]
 expect
     lists = [0, 1, 0, 0, 1, 0, 0, 0] |> split_with_delims(|x| x == 1)
     lists == [[0], [1], [0, 0], [1], [0, 0, 0]]
+expect 
+    lists = split_with_delims(['+', '-', '0', '1', '2'], |c| List.contains(['-', '+'], c)) 
+    lists == [['+'], ['-'], ['0', '1', '2']]
 
 ## Split a list into sublists and include the delimiters at the head of each sublist.
 ## ```
