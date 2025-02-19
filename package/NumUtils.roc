@@ -23,4 +23,6 @@ approx_eq_out_to = |lhs, rhs, out_to| Num.abs(lhs - rhs) <= Num.pow(10, -Num.to_
 
 expect approx_eq_out_to(1.0, 0.99999, 5)
 expect !approx_eq_out_to(1.0, 0.99999, 6)
+expect approx_eq_out_to(1.0, 1.00001, 5)
+expect !approx_eq_out_to(1.0, 1.00001, 6)
 
