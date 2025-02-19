@@ -6,19 +6,24 @@ A collection of commonly used functions and types for Roc.
 [![CI status][ci_status_badge]][ci_status_link]
 [![Latest release][version_badge]][version_link]
 
-## Contents:
+## Modules:
 
-Module    | Exposed
-----------|-------------------------------------------------
-ListUtils | split_if : List a, (a -> Bool) -> List (List a)
-Maybe     | Maybe a : [Some a, None]
-Maybe     | map : Maybe a, (a -> b) -> Maybe b
-Maybe     | with_default : Maybe a, a -> a
-Maybe     | map_with_default : Maybe a, (a -> b), b -> b
-StrUtils  | capitalize : Str -> Str
-StrUtils  | lowercase : Str -> Str
-StrUtils  | uppercase : Str -> Str
-Unsafe    | unwrap : Result a err -> a
+__ListUtils__
+- split_if : List a, (a -> Bool) -> List (List a)
+
+__Maybe__
+- Maybe a : [Some a, None]
+- map : Maybe a, (a -> b) -> Maybe b
+- with_default : Maybe a, a -> a
+- map_with_default : Maybe a, (a -> b), b -> b
+
+__StrUtils__
+- capitalize : Str -> Str
+- lowercase : Str -> Str
+- uppercase : Str -> Str
+
+__Unsafe__
+- unwrap : Result a err -> a
 
 <!-- LINKS -->
 [roc_badge]: https://img.shields.io/endpoint?url=https%3A%2F%2Fpastebin.com%2Fraw%2FcFzuCCd7
