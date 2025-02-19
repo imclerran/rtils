@@ -30,7 +30,7 @@ expect
 
 expect
     split = [1, 2, 3] |> split_if(|x| x == 0)
-    split == [[1, 3, 3]]
+    split == [[1, 2, 3]]
 
 expect 
     split = [0, 1, 1, 2, 3, 5, 8, 13, 21, 34] |> split_if(|x| x % 2 == 0)
