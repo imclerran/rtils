@@ -28,6 +28,10 @@ __StrUtils__
 - `capitalize : Str -> Str`
 - `lowercase : Str -> Str`
 - `uppercase : Str -> Str`
+- `pad_left : Str, U8, U64 -> Result Str [InvalidASCII]`
+- `pad_right : Str, U8, U64 -> Result Str [InvalidASCII]`
+- `pad_left_ascii : Str, U8, U64 -> Str`
+- `pad_right_ascii : Str, U8, U64 -> Str`
 
 __Unsafe__
 - `unwrap : Result a err -> a`
