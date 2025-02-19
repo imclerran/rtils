@@ -20,7 +20,7 @@ uppercase : Str -> Str
 uppercase = |str| Str.to_utf8(str) |> uppercase_help |> Str.from_utf8_lossy
 
 uppercase_help : List U8 -> List U8
-uppercase_help = |bytes| 
+uppercase_help = |bytes|
     when bytes is
         [first, .. as rest] ->
             if is_lowercase(first) then
@@ -101,7 +101,7 @@ pad_left_ascii = |str, char, target_length|
     pad_len = if target_length > cur_len then target_length - cur_len else 0
     pad_char = if is_printed_ascii_char(char) then char else ' '
     pad = List.repeat(pad_char, pad_len)
-    Str.from_utf8_lossy(List.join[pad, bytes])
+    Str.from_utf8_lossy(List.join [pad, bytes])
 
 expect pad_left_ascii("123", ' ', 5) == "  123"
 expect pad_left_ascii("123", ' ', 2) == "123"
@@ -122,14 +122,13 @@ pad_right_ascii = |str, char, target_length|
     pad_len = if target_length > cur_len then target_length - cur_len else 0
     pad_char = if is_printed_ascii_char(char) then char else ' '
     pad = List.repeat(pad_char, pad_len)
-    Str.from_utf8_lossy(List.join[bytes, pad])
+    Str.from_utf8_lossy(List.join [bytes, pad])
 
 expect pad_right_ascii("123", ' ', 5) == "123  "
 expect pad_right_ascii("123", ' ', 2) == "123"
 expect pad_right_ascii("123", 127, 5) == "123  "
 expect pad_right_ascii("123", '_', 5) == "123__"
 expect pad_right_ascii("🔥", ' ', 2) == "🔥"
-
 
 # Removed due to https://github.com/roc-lang/roc/issues/7583
 # import unicode.Grapheme

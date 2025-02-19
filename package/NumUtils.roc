@@ -19,7 +19,7 @@ expect !approx_eq(1.0, 1.00001)
 ## expect !approx_eq_out_to(1.0, 0.99999, 6)
 ## ```
 approx_eq_out_to : Frac a, Frac a, Num b -> Bool
-approx_eq_out_to = |lhs, rhs, out_to| Num.abs(lhs - rhs) <= Num.pow(10, -Num.to_frac(out_to)) 
+approx_eq_out_to = |lhs, rhs, out_to| Num.abs(lhs - rhs) <= Num.pow(10, -Num.to_frac(out_to))
 
 expect approx_eq_out_to(1.0, 0.99999, 5)
 expect !approx_eq_out_to(1.0, 0.99999, 6)
