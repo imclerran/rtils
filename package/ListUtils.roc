@@ -1,4 +1,4 @@
-module [split_if]
+module [split_if, split_at_indices, split_with_delims, split_with_delims_head, split_with_delims_tail]
 
 ## Split a list into sublists using a predicate function to identify delimiters.
 ## ```
@@ -35,6 +35,38 @@ expect
 expect
     split = [0, 1, 1, 2, 3, 5, 8, 13, 21, 34] |> split_if(|x| x % 2 == 0)
     split == [[1, 1], [3, 5], [13, 21]]
+
+split_at_indices : List a, List U64 -> List (List a)
+split_at_indices = |list, indices|
+    if List.is_empty(list) then
+        [[]]
+    else
+        split_at_indices_help(list, List.sort_desc(indices))
+
+split_at_indices_help : List a, List U64 -> List (List a)
+split_at_indices_help = |list, indices|
+    when indices is
+        [x, .. as xs] if x != 0 and x != List.len(list) ->
+            { before, others } = List.split_at(list, Num.to_u64(x))
+            split_at_indices_help(before, xs) |> List.append(others)
+
+        [_, .. as xs] ->
+            split_at_indices_help(list, xs)
+
+        [] -> [list]
+
+expect [] |> split_at_indices([]) == [[]]
+expect [] |> split_at_indices([0]) == [[]]
+expect [0] |> split_at_indices([]) == [[0]]
+expect [0] |> split_at_indices([0]) == [[0]]
+expect [0] |> split_at_indices([1]) == [[0]]
+expect [0, 1] |> split_at_indices([]) == [[0, 1]]
+expect [0, 1] |> split_at_indices([0]) == [[0, 1]]
+expect [0, 1] |> split_at_indices([1]) == [[0], [1]]
+expect [0, 1] |> split_at_indices([2]) == [[0, 1]]
+expect
+    lists = [0, 1, 2, 3, 4, 5] |> split_at_indices([1, 3])
+    lists == [[0], [1, 2], [3, 4, 5]]
 
 ## Split a list into sublists and include the delimiters in as single element sublists.
 ## ```
@@ -95,7 +127,7 @@ split_with_delims_head = |list, predicate|
                         Delim -> List.join([sublists, [sublist], [[value]]])
                         NotDelim -> List.join([sublists, [List.append(sublist, value)]])
 
-                [] -> [[value]]
+                [] -> [[value]],
     )
 
 expect [] |> split_with_delims_head(|x| x == 1) == []
@@ -103,7 +135,7 @@ expect [0] |> split_with_delims_head(|x| x == 1) == [[0]]
 expect [1] |> split_with_delims_head(|x| x == 1) == [[1]]
 expect [0, 1] |> split_with_delims_head(|x| x == 1) == [[0], [1]]
 expect [1, 0] |> split_with_delims_head(|x| x == 1) == [[1, 0]]
-expect 
+expect
     lists = [0, 1, 0, 0, 1, 0, 0, 0] |> split_with_delims_head(|x| x == 1)
     lists == [[0], [1, 0, 0], [1, 0, 0, 0]]
 
@@ -124,12 +156,13 @@ split_with_delims_tail = |list, predicate|
 
                 [.. as sublists, [.. as sublist, last_value]] ->
                     when delimit(last_value) is
-                        Delim -> 
+                        Delim ->
                             List.join([sublists, [List.append(sublist, last_value)], [[value]]])
+
                         NotDelim ->
                             List.append(sublists, List.join([sublist, [last_value], [value]]))
-                
-                [] -> [[value]]
+
+                [] -> [[value]],
     )
 
 expect [] |> split_with_delims_tail(|x| x == 1) == []
@@ -137,6 +170,6 @@ expect [0] |> split_with_delims_tail(|x| x == 1) == [[0]]
 expect [1] |> split_with_delims_tail(|x| x == 1) == [[1]]
 expect [0, 1] |> split_with_delims_tail(|x| x == 1) == [[0, 1]]
 expect [1, 0] |> split_with_delims_tail(|x| x == 1) == [[1], [0]]
-expect 
+expect
     lists = [0, 1, 0, 0, 1, 0, 0, 0] |> split_with_delims_tail(|x| x == 1)
     lists == [[0, 1], [0, 0, 1], [0, 0, 0]]
