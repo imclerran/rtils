@@ -4,8 +4,10 @@ module [unwrap]
 ## ```roc
 ## unwrap(Ok(5), "This should never crash") == 5
 ## ```
-unwrap : Result a _, Str -> a
+unwrap : Result a err, Str -> a
 unwrap = |result, message|
     when result is
         Ok(value) -> value
         Err(_) -> crash(message)
+
+expect unwrap(Ok(5), "This should never crash") == 5
