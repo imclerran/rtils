@@ -10,6 +10,9 @@ A collection of commonly used functions and types for Roc.
 
 __ListUtils__
 - `split_if : List a, (a -> Bool) -> List (List a)`
+- `split_with_delims : List a, (a -> Bool) -> List (List a)`
+- `split_with_delims_head : List a, (a -> Bool) -> List (List a)`
+- `split_with_delims_tail : List a, (a -> Bool) -> List (List a)`
 
 __Maybe__
 - `Maybe a : [Some a, None]`
