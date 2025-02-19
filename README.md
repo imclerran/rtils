@@ -9,21 +9,21 @@ A collection of commonly used functions and types for Roc.
 ## Modules:
 
 __ListUtils__
-- split_if : List a, (a -> Bool) -> List (List a)
+- `split_if : List a, (a -> Bool) -> List (List a)`
 
 __Maybe__
-- Maybe a : [Some a, None]
-- map : Maybe a, (a -> b) -> Maybe b
-- with_default : Maybe a, a -> a
-- map_with_default : Maybe a, (a -> b), b -> b
+- `Maybe a : [Some a, None]`
+- `map : Maybe a, (a -> b) -> Maybe b`
+- `with_default : Maybe a, a -> a`
+- `map_with_default : Maybe a, (a -> b), b -> b`
 
 __StrUtils__
-- capitalize : Str -> Str
-- lowercase : Str -> Str
-- uppercase : Str -> Str
+- `capitalize : Str -> Str`
+- `lowercase : Str -> Str`
+- `uppercase : Str -> Str`
 
 __Unsafe__
-- unwrap : Result a err -> a
+- `unwrap : Result a err -> a`
 
 <!-- LINKS -->
 [roc_badge]: https://img.shields.io/endpoint?url=https%3A%2F%2Fpastebin.com%2Fraw%2FcFzuCCd7
