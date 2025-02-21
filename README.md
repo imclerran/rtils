@@ -11,6 +11,8 @@ A collection of commonly used functions and types for Roc.
 __ListUtils__
 ```roc
 split_if : List a, (a -> Bool) -> List (List a)
+split_first_if : List a, (a -> Bool) -> Result { before: List a, after: List a } [NotFound]
+split_last_if : List a, (a -> Bool) -> Result { before: List a, after: List a } [NotFound]
 split_at_indices : List a, List U64 -> List (List a)
 split_with_delims : List a, (a -> Bool) -> List (List a)
 split_with_delims_head : List a, (a -> Bool) -> List (List a)
