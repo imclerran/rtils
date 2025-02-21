@@ -1,4 +1,4 @@
-module [split_if, split_at_indices, split_with_delims, split_with_delims_head, split_with_delims_tail]
+module [split_if, split_first_if, split_last_if, split_at_indices, split_with_delims, split_with_delims_head, split_with_delims_tail]
 
 ## Split a list into sublists using a predicate function to identify delimiters.
 ## ```

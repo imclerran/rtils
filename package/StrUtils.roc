@@ -1,4 +1,26 @@
-module [capitalize, lowercase, uppercase, pad_left, pad_right, pad_left_ascii, pad_right_ascii]
+module [split_first_if, split_last_if, capitalize, lowercase, uppercase, pad_left, pad_right, pad_left_ascii, pad_right_ascii]
+
+import ListUtils
+
+split_first_if : Str, (U8 -> Bool) -> Result { before: Str, after: Str } [NotFound]
+split_first_if = |str, predicate|
+    Str.to_utf8(str) 
+    |> ListUtils.split_first_if(predicate) 
+    |> Result.map_ok(|{ before, after }| { before: Str.from_utf8_lossy(before), after: Str.from_utf8_lossy(after) })
+
+expect "0100010" |> split_first_if(|c| c == '1') == Ok({ before: "0", after: "00010" })
+expect "0100010" |> split_first_if(|c| c == '0') == Ok({ before: "", after: "100010" })
+expect "0100010" |> split_first_if(|c| c == '2') == Err(NotFound)
+
+split_last_if : Str, (U8 -> Bool) -> Result { before: Str, after: Str } [NotFound]
+split_last_if = |str, predicate|
+    Str.to_utf8(str) 
+    |> ListUtils.split_last_if(predicate) 
+    |> Result.map_ok(|{ before, after }| { before: Str.from_utf8_lossy(before), after: Str.from_utf8_lossy(after) })
+
+expect "0100010" |> split_last_if(|c| c == '1') == Ok({ before: "01000", after: "0" })
+expect "0100010" |> split_last_if(|c| c == '0') == Ok({ before: "010001", after: "" })
+expect "0100010" |> split_last_if(|c| c == '2') == Err(NotFound)
 
 ## If the first character of the string is a lowercase letter, capitalize it. Lowercase the rest of the string.
 capitalize : Str -> Str
