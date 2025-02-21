@@ -36,6 +36,28 @@ expect
     split = [0, 1, 1, 2, 3, 5, 8, 13, 21, 34] |> split_if(|x| x % 2 == 0)
     split == [[1, 1], [3, 5], [13, 21]]
 
+split_first_if : List a, (a -> Bool) -> Result { before: List a, after: List a } [NotFound]
+split_first_if = |list, predicate|
+    index = List.find_first_index(list, predicate)?
+    { before, others } = List.split_at(list, index)
+    Ok({ before, after: List.drop_first(others, 1) })
+
+expect [0, 1] |> split_first_if(|x| x % 2 == 1) == Ok({ before: [0], after: [] })
+expect [0, 1] |> split_first_if(|x| x % 2 == 0) == Ok({ before: [], after: [1] })
+expect [0, 1, 2, 3, 4] |> split_first_if(|x| x % 2 == 1) == Ok({ before: [0], after: [2, 3, 4] })
+expect [0] |> split_first_if(|x| x % 2 == 1) == Err(NotFound)
+
+split_last_if : List a, (a -> Bool) -> Result { before: List a, after: List a } [NotFound]
+split_last_if = |list, predicate|
+    index = List.find_last_index(list, predicate)?
+    { before, others } = List.split_at(list, index)
+    Ok({ before, after: List.drop_first(others, 1) })
+
+expect [0, 1] |> split_last_if(|x| x % 2 == 1) == Ok({ before: [0], after: [] })
+expect [0, 1] |> split_last_if(|x| x % 2 == 0) == Ok({ before: [], after: [1] })
+expect [0, 1, 2, 3, 4] |> split_last_if(|x| x % 2 == 1) == Ok({ before: [0, 1, 2], after: [4] })
+expect [0] |> split_last_if(|x| x % 2 == 1) == Err(NotFound)
+
 split_at_indices : List a, List U64 -> List (List a)
 split_at_indices = |list, indices|
     if List.is_empty(list) then
