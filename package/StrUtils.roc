@@ -1,6 +1,16 @@
-module [split_first_if, split_last_if, capitalize, lowercase, uppercase, pad_left, pad_right, pad_left_ascii, pad_right_ascii]
+module [split_if, split_first_if, split_last_if, capitalize, lowercase, uppercase, pad_left, pad_right, pad_left_ascii, pad_right_ascii]
 
 import ListUtils
+
+split_if : Str, (U8 -> Bool) -> List Str
+split_if = |str, predicate|
+    Str.to_utf8(str) 
+    |> ListUtils.split_if(predicate) 
+    |> List.map(Str.from_utf8_lossy)
+
+expect "0123456789" |> split_if(|c| c >= '0' and c <= '9') == []
+expect "0123456789" |> split_if(|c| c >= 'a' and c <= 'z') == ["0123456789"]
+expect "0a123b45cd" |> split_if(|c| c >= 'a' and c <= 'z') == ["0", "123", "45"]
 
 split_first_if : Str, (U8 -> Bool) -> Result { before: Str, after: Str } [NotFound]
 split_first_if = |str, predicate|
