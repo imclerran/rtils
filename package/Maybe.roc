@@ -1,4 +1,4 @@
-module [Maybe, map, with_default, map_with_default]
+module [Maybe, map, with_default, map_with_default, from_result]
 
 ## A type that represents a value that may or may not be present.
 Maybe a : [Some a, None]
@@ -35,3 +35,9 @@ map_with_default = |m, f, g|
     when m is
         Some(v) -> f(v)
         None -> g
+
+from_result : Result a err -> Maybe a
+from_result = |result|
+    when result is
+        Ok(v) -> Some(v)
+        Err(_) -> None

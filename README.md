@@ -25,6 +25,7 @@ Maybe a : [Some a, None]
 map : Maybe a, (a -> b) -> Maybe b
 with_default : Maybe a, a -> a
 map_with_default : Maybe a, (a -> b), b -> b
+from_result : Result a err -> Maybe a
 ```
 
 __NumUtils__
