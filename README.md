@@ -36,6 +36,7 @@ approx_eq_out_to : Frac a, Frac a, Num b -> Bool
 
 __StrUtils__
 ```roc
+split_if : Str, (U8 -> Bool) -> List Str
 split_first_if : Str, (U8 -> Bool) -> Result { before: Str, after: Str } [NotFound]
 split_last_if : Str, (U8 -> Bool) -> Result { before: Str, after: Str } [NotFound]
 capitalize : Str -> Str
