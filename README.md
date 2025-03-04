@@ -8,6 +8,12 @@ A collection of commonly used functions and types for Roc.
 
 ## Modules:
 
+__Compare__
+```roc
+str : Str, Str -> [LT, EQ, GT]
+str_reverse : Str, Str -> [LT, EQ, GT]
+```
+
 __ListUtils__
 ```roc
 split_if : List a, (a -> Bool) -> List (List a)
