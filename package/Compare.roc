@@ -1,4 +1,4 @@
-module [str, str, str_reverse]
+module [num, num_reverse, str, str_reverse]
 
 num_to_comparator : Num a -> [LT, EQ, GT]
 num_to_comparator = |n| if n < 0 then LT else if n > 0 then GT else EQ
@@ -31,3 +31,18 @@ expect str("Aa", "a") == LT
 
 str_reverse : Str, Str -> [LT, EQ, GT]
 str_reverse = |a, b| str(b, a)
+
+num : Num a, Num a -> [LT, EQ, GT]
+num = |a, b| num_to_comparator(a - b)
+
+expect num(1, 2) == LT
+expect num(2, 1) == GT
+expect num(1, 1) == EQ
+expect num(-0.1, 0.1) == LT
+expect num(0.1, -0.1) == GT
+expect num(-1, -2) == GT
+expect num(-2, -1) == LT
+expect num(0, 0) == EQ
+
+num_reverse : Num a, Num a -> [LT, EQ, GT]
+num_reverse = |a, b| num(b, a)
