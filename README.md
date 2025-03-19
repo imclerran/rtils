@@ -10,6 +10,8 @@ A collection of commonly used functions and types for Roc.
 
 __Compare__
 ```roc
+num : Num a, Num a -> [LT, EQ, GT]
+num_reverse : Num a, Num a -> [LT, EQ, GT]
 str : Str, Str -> [LT, EQ, GT]
 str_reverse : Str, Str -> [LT, EQ, GT]
 ```
