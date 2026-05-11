@@ -1,48 +1,100 @@
-module [num, num_reverse, str, str_reverse]
+import ListUtils
 
-num_to_comparator : Num a -> [LT, EQ, GT]
-num_to_comparator = |n| if n < 0 then LT else if n > 0 then GT else EQ
+Compare :: [].{
 
-str : Str, Str -> [LT, EQ, GT]
-str = |a, b|
-    if a == b then
-        EQ
-    else
-        bytes_a = Str.to_utf8(a)
-        bytes_b = Str.to_utf8(b)
-        comp_list = List.map2(
-            bytes_a,
-            bytes_b,
-            |byte_a, byte_b|
-                if byte_a < byte_b then LT else if byte_a > byte_b then GT else EQ,
-        )
-        (List.find_first(comp_list, |comp| comp != EQ))
-        |> Result.with_default((Num.to_i64(List.len(bytes_a)) - Num.to_i64(List.len(bytes_b)) |> num_to_comparator))
+	## Compare two numbers for sorting in ascending order.
+	## ```
+	## List.sort_with([3, 1, 2], Compare.num_asc) == [1, 2, 3]
+	## ```
+	num_asc : number, number -> [LT, EQ, GT]
+		where [
+			number.is_lt : number, number -> Bool,
+			number.is_gt : number, number -> Bool,
+		]
+	num_asc = |a, b| if a < b LT else if a > b GT else EQ
 
-expect str("a", "b") == LT
-expect str("b", "a") == GT
-expect str("a", "a") == EQ
-expect str("a", "aa") == LT
-expect str("aa", "a") == GT
-expect str("A", "a") == LT
-expect str("a", "A") == GT
-expect str("a", "Aa") == GT
-expect str("Aa", "a") == LT
+	## Compare two numbers for sorting in descending order.
+	## ```
+	## List.sort_with([3, 1, 2], Compare.num_desc) == [3, 2, 1]
+	## ```
+	num_desc : number, number -> [LT, EQ, GT]
+		where [
+			number.is_lt : number, number -> Bool,
+			number.is_gt : number, number -> Bool,
+		]
+	num_desc = |a, b| num_asc(b, a)
 
-str_reverse : Str, Str -> [LT, EQ, GT]
-str_reverse = |a, b| str(b, a)
+	## Compare two strings for sorting in ascending order.
+	## ```
+	## List.sort_with(["apple", "Banana", "cherry"], Compare.str_asc) == ["Banana", "apple", "cherry"]
+	## ```
+	str_asc : Str, Str -> [LT, EQ, GT]
+	str_asc = |a, b| {
+		if a == b EQ
+			else {
+				bytes_a = a.to_utf8()
+				bytes_b = b.to_utf8()
+				var $idx = 0
+				_ = for byte_a in bytes_a {
+					match bytes_b.get($idx) {
+						Ok(byte_b) if byte_a < byte_b => {
+							return LT
+						}
+						Ok(byte_b) if byte_a > byte_b => {
+							return GT
+						}
+						Ok(byte_b) if byte_a == byte_b => {}
+						Err(OutOfBounds) => {
+							return GT
+						}
+					}
+					$idx = $idx + 1
+				}
+				if bytes_a.len() < bytes_b.len() {
+					return LT
+				}
+				EQ
+			}
+	}
 
-num : Num a, Num a -> [LT, EQ, GT]
-num = |a, b| num_to_comparator(a - b)
+	## Compare two strings for sorting in descending order.
+	## ```
+	## List.sort_with(["apple", "Banana", "cherry"], Compare.str_desc) == ["cherry", "apple", "Banana"]
+	## ```
+	str_desc : Str, Str -> [LT, EQ, GT]
+	str_desc = |a, b| str_asc(b, a)
+}
 
-expect num(1, 2) == LT
-expect num(2, 1) == GT
-expect num(1, 1) == EQ
-expect num(-0.1, 0.1) == LT
-expect num(0.1, -0.1) == GT
-expect num(-1, -2) == GT
-expect num(-2, -1) == LT
-expect num(0, 0) == EQ
+# ----- private helpers -----
 
-num_reverse : Num a, Num a -> [LT, EQ, GT]
-num_reverse = |a, b| num(b, a)
+num_to_comparator : number -> [LT, EQ, GT]
+	where [
+		number.is_lt : number, number -> Bool,
+		number.is_gt : number, number -> Bool,
+		number.default : number,
+	]
+num_to_comparator = |n| {
+	Num : number
+	if n < Num.default LT else if n > Num.default GT else EQ
+}
+
+# ----- tests -----
+
+expect str_asc("a", "b") == LT
+expect str_asc("b", "a") == GT
+expect str_asc("a", "a") == EQ
+expect str_asc("a", "aa") == LT
+expect str_asc("aa", "a") == GT
+expect str_asc("A", "a") == LT
+expect str_asc("a", "A") == GT
+expect str_asc("a", "Aa") == GT
+expect str_asc("Aa", "a") == LT
+
+expect num_asc(1, 2) == LT
+expect num_asc(2, 1) == GT
+expect num_asc(1, 1) == EQ
+expect num_asc(-0.1, 0.1) == LT
+expect num_asc(0.1, -0.1) == GT
+expect num_asc(-1, -2) == GT
+expect num_asc(-2, -1) == LT
+expect num_asc(0, 0) == EQ
