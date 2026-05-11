@@ -1,55 +1,67 @@
-module [Maybe, map, with_default, map_with_default, from_result]
+Maybe(a) :: [Some(a), None].{
 
-## A type that represents a value that may or may not be present.
-Maybe a : [Some a, None]
+    ## Construct a Some value
+    some : a -> Maybe(a)
+    some = |v| Some(v)
 
-## Apply a transformation to the value of a Maybe.
-## ```
-## expect Some(1) |> map(Number) == Some(Number(1))
-## expect None |> map(Number) == None
-## ```
-map : Maybe a, (a -> b) -> Maybe b
-map = |maybe, transform|
-    when maybe is
-        Some(v) -> Some(transform(v))
-        None -> None
+    ## Construct a None value
+    none : Maybe(_)
+    none = None
 
-expect Some(1) |> map(Number) == Some(Number(1))
-expect None |> map(Number) == None
+    ## Compare to Maybe values for equality
+    is_eq : Maybe(a), Maybe(a) -> Bool
+        where [a.is_eq : a, a -> Bool]
+    is_eq = |lhs, rhs| {
+        match (lhs, rhs) {
+            (Some(lv), Some(rv)) => lv == rv
+            (None, None) => Bool.True
+            _ => Bool.False
+        }
+    }
 
-## Return the value of a Maybe or the default if None.
-## ```
-## expect Some(1) |> with_default(0) == 1
-## expect None |> with_default(0) == 0
-## ```
-with_default : Maybe a, a -> a
-with_default = |maybe, default|
-    when maybe is
-        Some(v) -> v
-        None -> default
+    ## Map a function over the value inside a Maybe, if it exists
+    map : Maybe(a), (a -> b) -> Maybe(b)
+    map = |m, f| {
+        match m {
+            Some(v) => Some(f(v))
+            None => None
+        }
+    }
 
-expect Some(1) |> with_default(0) == 1
-expect None |> with_default(0) == 0
+    ## Extract the value from a Maybe, or return a default if it is None
+    with_default : Maybe(a), a -> a
+    with_default = |m, dv| {
+        match m {
+            Some(v) => v
+            None => dv
+        }
+    }
 
-## Transform a Maybe value or return the default if None.
-## ```
-## expect Some(1) |> map_with_default(Number, Nothing) == Number(1)
-## expect None |> map_with_default(Number, Nothing) == Nothing
-## ```
-map_with_default : Maybe a, (a -> b), b -> b
-map_with_default = |m, f, g|
-    when m is
-        Some(v) -> f(v)
-        None -> g
+    ## Convert a Try value to a Maybe
+    from_try : Try(a, err) -> Maybe(a)
+    from_try = |t| {
+        match t {
+            Ok(v) => Some(v)
+            Err(_) => None
+        }
+    }
+}
 
-expect Some(1) |> map_with_default(Number, Nothing) == Number(1)
-expect None |> map_with_default(Number, Nothing) == Nothing
+# ----- tests -----
 
-from_result : Result a err -> Maybe a
-from_result = |result|
-    when result is
-        Ok(v) -> Some(v)
-        Err(_) -> None
+# some and none tests
+expect some(1) == some(1)
+expect some(1) != some(2)
+expect some(1) != none
+expect none == none
 
-expect Ok(1) |> from_result == Some(1)
-expect Err(Error) |> from_result == None
+# map tests
+expect some(1).map(|a| a + 1) == some(2)
+
+# with default tests
+expect some(2).with_default(1) == 2
+expect none.with_default(1) == 1
+
+# from_try tests
+expect Ok(1)->from_try == some(1)
+expect Err(E)->from_try == none
