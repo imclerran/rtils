@@ -29,8 +29,10 @@ NumUtils :: [].{
 	## expect !is_approx_eq_to_places(1.0, 0.99999, 6)
 	## ```
 	is_approx_eq_to_places : F64, F64, U64 -> Bool
-	is_approx_eq_to_places = |a, b, places|
-		is_approx_eq_with_tols(a, b, ten_pow_neg(places), 0.000000001)
+	is_approx_eq_to_places = |a, b, places| {
+		abs_tol = ten_pow_neg(places)
+		is_approx_eq_with_tols(a, b, abs_tol, 0.000000001)
+	}
 }
 
 # ----- private helpers -----
