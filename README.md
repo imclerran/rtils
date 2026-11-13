@@ -42,7 +42,7 @@ __Maybe__
 ```roc
 Maybe(a) : [Some(a), None]
 some : a -> Maybe(a)
-none : Maybe(_)
+none : () -> Maybe(a)
 is_eq : Maybe(a), Maybe(a) -> Bool
 map : Maybe(a), (a -> b) -> Maybe(b)
 with_default : Maybe(a), a -> a

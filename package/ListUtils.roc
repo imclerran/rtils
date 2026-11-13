@@ -38,7 +38,7 @@ ListUtils :: [].{
 		for item in list if predicate(item) {
 			return Ok(item)
 		}
-		return Err(NotFound)
+		Err(NotFound)
 	}
 
 	## Find the last element in a list that satisfies a given predicate, returning it wrapped in `Ok` if found, or `Err(NotFound)` if no such element exists.
@@ -50,7 +50,7 @@ ListUtils :: [].{
 		for item in list.rev() if predicate(item) {
 			return Ok(item)
 		}
-		return Err(NotFound)
+		Err(NotFound)
 	}
 
 	## Find the index of the first element in a list that satisfies a given predicate, returning it wrapped in `Ok` if found, or `Err(NotFound)` if no such element exists.
@@ -66,14 +66,14 @@ ListUtils :: [].{
 			}
 			$idx = $idx + 1
 		}
-		return Err(NotFound)
+		Err(NotFound)
 	}
 
 	## Find the index of the last element in a list that satisfies a given predicate, returning it wrapped in `Ok` if found, or `Err(NotFound)` if no such element exists.
 	## ```
 	## expect [1, 2, 3, 4]->find_last_index(|x| x < 4) == Ok(2)
 	## ```
-	find_last_indxex : List(a), (a -> Bool) -> Try(U64, [NotFound])
+	find_last_index : List(a), (a -> Bool) -> Try(U64, [NotFound])
 	find_last_index = |list, predicate| {
 		var $idx = list.len()
 		for item in list.rev() {
@@ -82,7 +82,7 @@ ListUtils :: [].{
 				return Ok($idx)
 			}
 		}
-		return Err(NotFound)
+		Err(NotFound)
 	}
 
 	## Split a list into two parts at a specified index, returning the part before the index and the part from the index onward.
@@ -91,9 +91,10 @@ ListUtils :: [].{
 	## ```
 	split_at : List(a), U64 -> { before : List(a), others : List(a) }
 	split_at = |list, idx| {
-		before = list.sublist({ start: 0, len: idx })
 		len = list.len()
-		others = list.sublist({ start: idx, len: len - idx })
+		split_idx = if (idx > len) len else idx
+		before = list.sublist({ start: 0, len: split_idx })
+		others = list.sublist({ start: split_idx, len: len - split_idx })
 		{ before, others }
 	}
 
@@ -102,7 +103,7 @@ ListUtils :: [].{
 	## expect [1, 2, 1, 2, 3]->split_on(1) == [[2], [2, 3]]
 	## ```
 	split_on : List(a), a -> List(List(a)) where [a.is_eq : a, a -> Bool]
-	split_on = |list, delim| list->split_if(|x| x == delim)
+	split_on = |list, delim| list |> split_if(|x| x == delim)
 
 	## Split a list into sublists using a specified delimiter list.
 	## ```
@@ -158,7 +159,7 @@ ListUtils :: [].{
 				$current = $current.append(item)
 			}
 		}
-		if !$current.is_empty() $acc.append($current) else $acc
+		if (!$current.is_empty()) $acc.append($current) else $acc
 	}
 
 	## Split a list into two parts at the first occurrence of a specified delimiter element, returning the part before the delimiter and the part after it. If the delimiter is not found, return `Err(NotFound)`.
@@ -167,7 +168,7 @@ ListUtils :: [].{
 	## ```
 	split_first : List(a), a -> Try({ before : List(a), after : List(a) }, [NotFound])
 		where [a.is_eq : a, a -> Bool]
-	split_first = |list, delim| list->split_first_if(|elem| elem == delim)
+	split_first = |list, delim| list |> split_first_if(|elem| elem == delim)
 
 	## Split a list into two parts at the first occurrence of an element that satisfies a given predicate, returning the part before the element and the part after it. If no such element is found, return `Err(NotFound)`.
 	## ```
@@ -175,8 +176,8 @@ ListUtils :: [].{
 	## ```
 	split_first_if : List(a), (a -> Bool) -> Try({ before : List(a), after : List(a) }, [NotFound])
 	split_first_if = |list, predicate| {
-		index = list->find_first_index(predicate)?
-		{ before, others } = list->split_at(index)
+		index = list |> find_first_index(predicate)?
+		{ before, others } = list |> split_at(index)
 		Ok({ before, after: others.drop_first(1) })
 	}
 
@@ -186,7 +187,7 @@ ListUtils :: [].{
 	## ```
 	split_last : List(a), a -> Try({ before : List(a), after : List(a) }, [NotFound])
 		where [a.is_eq : a, a -> Bool]
-	split_last = |list, delim| list->split_last_if(|elem| elem == delim)
+	split_last = |list, delim| list |> split_last_if(|elem| elem == delim)
 
 	## Split a list into two parts at the last occurrence of an element that satisfies a given predicate, returning the part before the element and the part after it. If no such element is found, return `Err(NotFound)`.
 	## ```
@@ -194,8 +195,8 @@ ListUtils :: [].{
 	## ```
 	split_last_if : List(a), (a -> Bool) -> Try({ before : List(a), after : List(a) }, [NotFound])
 	split_last_if = |list, predicate| {
-		index = list->find_last_index(predicate)?
-		{ before, others } = list->split_at(index)
+		index = list |> find_last_index(predicate)?
+		{ before, others } = list |> split_at(index)
 		Ok({ before, after: others.drop_first(1) })
 	}
 
@@ -286,9 +287,9 @@ ListUtils :: [].{
 						if predicate(last_value) {
 							sublists.append(sublist.append(last_value)).append([value])
 						}
-							else {
-								sublists.append(sublist.append(last_value).append(value))
-							}
+						else {
+							sublists.append(sublist.append(last_value).append(value))
+						}
 
 					[] => [[value]]
 
@@ -302,123 +303,123 @@ ListUtils :: [].{
 # ----- tests -----
 
 # map2 tests
-expect [1, 2, 3]->map2([10, 20, 30], I64.plus) == [11, 22, 33]
-expect [1, 2, 3]->map2([10, 20], |a, b| a + b) == [11, 22]
-expect [1]->map2([10, 20, 30], |a, b| a + b) == [11]
-expect [1, 2, 3.U64]->map2(["a", "b", "c"], |n, s| "${n.to_str()}-${s}") == ["1-a", "2-b", "3-c"]
+expect [1, 2, 3] |> ListUtils.map2([10, 20, 30], I64.plus) == [11, 22, 33]
+expect [1, 2, 3] |> ListUtils.map2([10, 20], |a, b| a + b) == [11, 22]
+expect [1] |> ListUtils.map2([10, 20, 30], |a, b| a + b) == [11]
+expect [1, 2, 3.U64] |> ListUtils.map2(["a", "b", "c"], |n, s| "${n.to_str()}-${s}") == ["1-a", "2-b", "3-c"]
 
 # zip tests
-expect [1, 2, 3]->zip(["a", "b", "c"]) == [(1, "a"), (2, "b"), (3, "c")]
-expect [1, 2, 3]->zip(["a", "b"]) == [(1, "a"), (2, "b")]
-expect []->zip(["a", "b"]) == []
-expect [1, 2]->zip([]) == []
+expect [1, 2, 3] |> ListUtils.zip(["a", "b", "c"]) == [(1, "a"), (2, "b"), (3, "c")]
+expect [1, 2, 3] |> ListUtils.zip(["a", "b"]) == [(1, "a"), (2, "b")]
+expect [] |> ListUtils.zip(["a", "b"]) == []
+expect [1, 2] |> ListUtils.zip([]) == []
 
 # find_first_index tests
-expect []->find_first_index(|x| x == 1) == Err(NotFound)
-expect [0]->find_first_index(|x| x == 1) == Err(NotFound)
-expect [1]->find_first_index(|x| x == 1) == Ok(0)
-expect [1, 1]->find_first_index(|x| x == 1) == Ok(0)
-expect [0, 1]->find_first_index(|x| x == 1) == Ok(1)
+expect [] |> ListUtils.find_first_index(|x| x == 1) == Err(NotFound)
+expect [0] |> ListUtils.find_first_index(|x| x == 1) == Err(NotFound)
+expect [1] |> ListUtils.find_first_index(|x| x == 1) == Ok(0)
+expect [1, 1] |> ListUtils.find_first_index(|x| x == 1) == Ok(0)
+expect [0, 1] |> ListUtils.find_first_index(|x| x == 1) == Ok(1)
 
 # find_last_index tests
-expect []->find_last_index(|x| x == 1) == Err(NotFound)
-expect [0]->find_last_index(|x| x == 1) == Err(NotFound)
-expect [1]->find_last_index(|x| x == 1) == Ok(0)
-expect [1, 1]->find_last_index(|x| x == 1) == Ok(1)
-expect [1, 0]->find_last_index(|x| x == 1) == Ok(0)
+expect [] |> ListUtils.find_last_index(|x| x == 1) == Err(NotFound)
+expect [0] |> ListUtils.find_last_index(|x| x == 1) == Err(NotFound)
+expect [1] |> ListUtils.find_last_index(|x| x == 1) == Ok(0)
+expect [1, 1] |> ListUtils.find_last_index(|x| x == 1) == Ok(1)
+expect [1, 0] |> ListUtils.find_last_index(|x| x == 1) == Ok(0)
 
 # split_at tests
-expect []->split_at(0) == { before: [], others: [] }
-expect [0]->split_at(0) == { before: [], others: [0] }
-expect [0]->split_at(1) == { before: [0], others: [] }
-expect [0]->split_at(5) == { before: [0], others: [] }
-expect [0, 1]->split_at(1) == { before: [0], others: [1] }
-expect [0, 1, 2, 3, 4, 5]->split_at(0) == { before: [], others: [0, 1, 2, 3, 4, 5] }
-expect [0, 1, 2, 3, 4, 5]->split_at(3) == { before: [0, 1, 2], others: [3, 4, 5] }
-expect [0, 1, 2, 3, 4, 5]->split_at(5) == { before: [0, 1, 2, 3, 4], others: [5] }
-expect [0, 1, 2, 3, 4, 5]->split_at(6) == { before: [0, 1, 2, 3, 4, 5], others: [] }
+expect [] |> ListUtils.split_at(0) == { before: [], others: [] }
+expect [0] |> ListUtils.split_at(0) == { before: [], others: [0] }
+expect [0] |> ListUtils.split_at(1) == { before: [0], others: [] }
+expect [0] |> ListUtils.split_at(5) == { before: [0], others: [] }
+expect [0, 1] |> ListUtils.split_at(1) == { before: [0], others: [1] }
+expect [0, 1, 2, 3, 4, 5] |> ListUtils.split_at(0) == { before: [], others: [0, 1, 2, 3, 4, 5] }
+expect [0, 1, 2, 3, 4, 5] |> ListUtils.split_at(3) == { before: [0, 1, 2], others: [3, 4, 5] }
+expect [0, 1, 2, 3, 4, 5] |> ListUtils.split_at(5) == { before: [0, 1, 2, 3, 4], others: [5] }
+expect [0, 1, 2, 3, 4, 5] |> ListUtils.split_at(6) == { before: [0, 1, 2, 3, 4, 5], others: [] }
 
 # split_on tests
-expect []->split_on(0) == []
-expect [0]->split_on(0) == []
-expect [1, 2, 3]->split_on(0) == [[1, 2, 3]]
-expect [0, 1, 1, 0, 3, 5, 0, 13, 21, 0]->split_on(0) == [[1, 1], [3, 5], [13, 21]]
+expect [] |> ListUtils.split_on(0) == []
+expect [0] |> ListUtils.split_on(0) == []
+expect [1, 2, 3] |> ListUtils.split_on(0) == [[1, 2, 3]]
+expect [0, 1, 1, 0, 3, 5, 0, 13, 21, 0] |> ListUtils.split_on(0) == [[1, 1], [3, 5], [13, 21]]
 
 # split_on_list tests
-expect [1, 2, 3]->split_on_list([1, 2]) == [[], [3]]
-expect [1, 1, 2]->split_on_list([1, 2]) == [[1], []]
-expect [1, 1, 1, 2]->split_on_list([1, 2]) == [[1, 1], []]
-expect [1, 2, 1, 2]->split_on_list([1, 2]) == [[], [], []]
-expect ['a', 'a', 'a']->split_on_list(['a', 'a']) == [[], ['a']]
+expect [1, 2, 3] |> ListUtils.split_on_list([1, 2]) == [[], [3]]
+expect [1, 1, 2] |> ListUtils.split_on_list([1, 2]) == [[1], []]
+expect [1, 1, 1, 2] |> ListUtils.split_on_list([1, 2]) == [[1, 1], []]
+expect [1, 2, 1, 2] |> ListUtils.split_on_list([1, 2]) == [[], [], []]
+expect ['a', 'a', 'a'] |> ListUtils.split_on_list(['a', 'a']) == [[], ['a']]
 
 # split_if tests
-expect []->split_if(|x| x == 0) == []
-expect [0]->split_if(|x| x == 0) == []
-expect [1, 2, 3]->split_if(|x| x == 0) == [[1, 2, 3]]
-expect [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]->split_if(|x| x % 2 == 0) == [[1, 1], [3, 5], [13, 21]]
+expect [] |> ListUtils.split_if(|x| x == 0) == []
+expect [0] |> ListUtils.split_if(|x| x == 0) == []
+expect [1, 2, 3] |> ListUtils.split_if(|x| x == 0) == [[1, 2, 3]]
+expect [0, 1, 1, 2, 3, 5, 8, 13, 21, 34] |> ListUtils.split_if(|x| x % 2 == 0) == [[1, 1], [3, 5], [13, 21]]
 
 # split_first tests
-expect [0, 1]->split_first(1) == Ok({ before: [0], after: [] })
-expect [0, 1]->split_first(0) == Ok({ before: [], after: [1] })
-expect [0, 1, 2, 1, 0]->split_first(1) == Ok({ before: [0], after: [2, 1, 0] })
-expect [0]->split_first(1) == Err(NotFound)
+expect [0, 1] |> ListUtils.split_first(1) == Ok({ before: [0], after: [] })
+expect [0, 1] |> ListUtils.split_first(0) == Ok({ before: [], after: [1] })
+expect [0, 1, 2, 1, 0] |> ListUtils.split_first(1) == Ok({ before: [0], after: [2, 1, 0] })
+expect [0] |> ListUtils.split_first(1) == Err(NotFound)
 
 # split_first_if tests
-expect [0, 1]->split_first_if(|x| x % 2 == 1) == Ok({ before: [0], after: [] })
-expect [0, 1]->split_first_if(|x| x % 2 == 0) == Ok({ before: [], after: [1] })
-expect [0, 1, 2, 3, 4]->split_first_if(|x| x % 2 == 1) == Ok({ before: [0], after: [2, 3, 4] })
-expect [0]->split_first_if(|x| x % 2 == 1) == Err(NotFound)
+expect [0, 1] |> ListUtils.split_first_if(|x| x % 2 == 1) == Ok({ before: [0], after: [] })
+expect [0, 1] |> ListUtils.split_first_if(|x| x % 2 == 0) == Ok({ before: [], after: [1] })
+expect [0, 1, 2, 3, 4] |> ListUtils.split_first_if(|x| x % 2 == 1) == Ok({ before: [0], after: [2, 3, 4] })
+expect [0] |> ListUtils.split_first_if(|x| x % 2 == 1) == Err(NotFound)
 
-expect [0, 1]->split_last(1) == Ok({ before: [0], after: [] })
-expect [0, 1]->split_last(0) == Ok({ before: [], after: [1] })
-expect [0, 1, 2, 1, 0]->split_last(1) == Ok({ before: [0, 1, 2], after: [0] })
-expect [0]->split_first(1) == Err(NotFound)
+expect [0, 1] |> ListUtils.split_last(1) == Ok({ before: [0], after: [] })
+expect [0, 1] |> ListUtils.split_last(0) == Ok({ before: [], after: [1] })
+expect [0, 1, 2, 1, 0] |> ListUtils.split_last(1) == Ok({ before: [0, 1, 2], after: [0] })
+expect [0] |> ListUtils.split_first(1) == Err(NotFound)
 
 # split_last_if tests
-expect [0, 1]->split_last_if(|x| x % 2 == 1) == Ok({ before: [0], after: [] })
-expect [0, 1]->split_last_if(|x| x % 2 == 0) == Ok({ before: [], after: [1] })
-expect [0, 1, 2, 3, 4]->split_last_if(|x| x % 2 == 1) == Ok({ before: [0, 1, 2], after: [4] })
-expect [0]->split_last_if(|x| x % 2 == 1) == Err(NotFound)
+expect [0, 1] |> ListUtils.split_last_if(|x| x % 2 == 1) == Ok({ before: [0], after: [] })
+expect [0, 1] |> ListUtils.split_last_if(|x| x % 2 == 0) == Ok({ before: [], after: [1] })
+expect [0, 1, 2, 3, 4] |> ListUtils.split_last_if(|x| x % 2 == 1) == Ok({ before: [0, 1, 2], after: [4] })
+expect [0] |> ListUtils.split_last_if(|x| x % 2 == 1) == Err(NotFound)
 
 # split_at_indices tests
-expect []->split_at_indices([]) == [[]]
-expect []->split_at_indices([0]) == [[]]
-expect [0]->split_at_indices([]) == [[0]]
-expect [0]->split_at_indices([0]) == [[0]]
-expect [0]->split_at_indices([1]) == [[0]]
-expect [0, 1]->split_at_indices([]) == [[0, 1]]
-expect [0, 1]->split_at_indices([0]) == [[0, 1]]
-expect [0, 1]->split_at_indices([1]) == [[0], [1]]
-expect [0, 1]->split_at_indices([2]) == [[0, 1]]
-expect [0, 1, 2, 3, 4, 5]->split_at_indices([1, 3]) == [[0], [1, 2], [3, 4, 5]]
+expect [] |> ListUtils.split_at_indices([]) == [[]]
+expect [] |> ListUtils.split_at_indices([0]) == [[]]
+expect [0] |> ListUtils.split_at_indices([]) == [[0]]
+expect [0] |> ListUtils.split_at_indices([0]) == [[0]]
+expect [0] |> ListUtils.split_at_indices([1]) == [[0]]
+expect [0, 1] |> ListUtils.split_at_indices([]) == [[0, 1]]
+expect [0, 1] |> ListUtils.split_at_indices([0]) == [[0, 1]]
+expect [0, 1] |> ListUtils.split_at_indices([1]) == [[0], [1]]
+expect [0, 1] |> ListUtils.split_at_indices([2]) == [[0, 1]]
+expect [0, 1, 2, 3, 4, 5] |> ListUtils.split_at_indices([1, 3]) == [[0], [1, 2], [3, 4, 5]]
 
 # split_with_delims tests
-expect []->split_with_delims(|x| x == 1) == []
-expect [0]->split_with_delims(|x| x == 1) == [[0]]
-expect [1]->split_with_delims(|x| x == 1) == [[1]]
-expect [0, 1]->split_with_delims(|x| x == 1) == [[0], [1]]
-expect [1, 0]->split_with_delims(|x| x == 1) == [[1], [0]]
-expect [0, 1, 0, 0, 1, 0, 0, 0]->split_with_delims(|x| x == 1) == [[0], [1], [0, 0], [1], [0, 0, 0]]
-expect split_with_delims(['0', '1', '2', '3', '4'], |c| List.contains(['0', '1'], c)) == [['0'], ['1'], ['2', '3', '4']]
+expect [] |> ListUtils.split_with_delims(|x| x == 1) == []
+expect [0] |> ListUtils.split_with_delims(|x| x == 1) == [[0]]
+expect [1] |> ListUtils.split_with_delims(|x| x == 1) == [[1]]
+expect [0, 1] |> ListUtils.split_with_delims(|x| x == 1) == [[0], [1]]
+expect [1, 0] |> ListUtils.split_with_delims(|x| x == 1) == [[1], [0]]
+expect [0, 1, 0, 0, 1, 0, 0, 0] |> ListUtils.split_with_delims(|x| x == 1) == [[0], [1], [0, 0], [1], [0, 0, 0]]
+expect ListUtils.split_with_delims(['0', '1', '2', '3', '4'], |c| List.contains(['0', '1'], c)) == [['0'], ['1'], ['2', '3', '4']]
 
 # split_with_delims_head tests
-expect []->split_with_delims_head(|x| x == 1) == []
-expect [0]->split_with_delims_head(|x| x == 1) == [[0]]
-expect [1]->split_with_delims_head(|x| x == 1) == [[1]]
-expect [0, 1, 0, 0]->split_with_delims_head(|x| x == 1) == [[0], [1, 0, 0]]
-expect [1, 0]->split_with_delims_head(|x| x == 1) == [[1, 0]]
-expect [1, 0, 1, 0]->split_with_delims_head(|x| x == 1) == [[1, 0], [1, 0]]
-expect [0, 0, 1, 0, 0, 1]->split_with_delims_head(|x| x == 1) == [[0, 0], [1, 0, 0], [1]]
+expect [] |> ListUtils.split_with_delims_head(|x| x == 1) == []
+expect [0] |> ListUtils.split_with_delims_head(|x| x == 1) == [[0]]
+expect [1] |> ListUtils.split_with_delims_head(|x| x == 1) == [[1]]
+expect [0, 1, 0, 0] |> ListUtils.split_with_delims_head(|x| x == 1) == [[0], [1, 0, 0]]
+expect [1, 0] |> ListUtils.split_with_delims_head(|x| x == 1) == [[1, 0]]
+expect [1, 0, 1, 0] |> ListUtils.split_with_delims_head(|x| x == 1) == [[1, 0], [1, 0]]
+expect [0, 0, 1, 0, 0, 1] |> ListUtils.split_with_delims_head(|x| x == 1) == [[0, 0], [1, 0, 0], [1]]
 
 # split_with_delims_tail tests
-expect []->split_with_delims_tail(|x| x == 1) == []
-expect [0]->split_with_delims_tail(|x| x == 1) == [[0]]
-expect [1]->split_with_delims_tail(|x| x == 1) == [[1]]
-expect [0, 1]->split_with_delims_tail(|x| x == 1) == [[0, 1]]
-expect [1, 0]->split_with_delims_tail(|x| x == 1) == [[1], [0]]
-expect [1, 1]->split_with_delims_tail(|x| x == 1) == [[1], [1]]
-expect [0, 0]->split_with_delims_tail(|x| x == 1) == [[0, 0]]
-expect [1, 0, 1]->split_with_delims_tail(|x| x == 1) == [[1], [0, 1]]
-expect [0, 1, 0, 0]->split_with_delims_tail(|x| x == 1) == [[0, 1], [0, 0]]
-expect [0, 1, 0, 0, 1, 0, 0, 0]->split_with_delims_tail(|x| x == 1) == [[0, 1], [0, 0, 1], [0, 0, 0]]
-expect split_with_delims_tail(['a', 'b', '0', 'c', '1', 'd'], |c| List.contains(['0', '1'], c)) == [['a', 'b', '0'], ['c', '1'], ['d']]
+expect [] |> ListUtils.split_with_delims_tail(|x| x == 1) == []
+expect [0] |> ListUtils.split_with_delims_tail(|x| x == 1) == [[0]]
+expect [1] |> ListUtils.split_with_delims_tail(|x| x == 1) == [[1]]
+expect [0, 1] |> ListUtils.split_with_delims_tail(|x| x == 1) == [[0, 1]]
+expect [1, 0] |> ListUtils.split_with_delims_tail(|x| x == 1) == [[1], [0]]
+expect [1, 1] |> ListUtils.split_with_delims_tail(|x| x == 1) == [[1], [1]]
+expect [0, 0] |> ListUtils.split_with_delims_tail(|x| x == 1) == [[0, 0]]
+expect [1, 0, 1] |> ListUtils.split_with_delims_tail(|x| x == 1) == [[1], [0, 1]]
+expect [0, 1, 0, 0] |> ListUtils.split_with_delims_tail(|x| x == 1) == [[0, 1], [0, 0]]
+expect [0, 1, 0, 0, 1, 0, 0, 0] |> ListUtils.split_with_delims_tail(|x| x == 1) == [[0, 1], [0, 0, 1], [0, 0, 0]]
+expect ListUtils.split_with_delims_tail(['a', 'b', '0', 'c', '1', 'd'], |c| List.contains(['0', '1'], c)) == [['a', 'b', '0'], ['c', '1'], ['d']]

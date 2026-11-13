@@ -15,4 +15,4 @@ Unsafe :: [].{
 	}
 }
 
-expect unwrap(Ok(5)) == 5
+expect Unsafe.unwrap(Ok(5)) == 5
