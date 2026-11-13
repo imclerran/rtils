@@ -1,4 +1,4 @@
-package [Compare, Maybe, ListUtils, NumUtils, StrUtils, Unsafe] {}
+package [Compare, ListUtils, Maybe, NumUtils, StrUtils, Unsafe] {}
 
 import Compare
 import Maybe

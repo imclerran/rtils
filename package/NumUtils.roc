@@ -40,9 +40,9 @@ NumUtils :: [].{
 is_approx_eq_with_tols : F64, F64, F64, F64 -> Bool
 is_approx_eq_with_tols = |a, b, abs_tol, rel_tol| {
 	diff = (a - b).abs()
-	scale = if a.abs() > b.abs() a.abs() else b.abs()
+	scale = if (a.abs() > b.abs()) a.abs() else b.abs()
 	rel_part = scale * rel_tol
-	threshold = if rel_part > abs_tol rel_part else abs_tol
+	threshold = if (rel_part > abs_tol) rel_part else abs_tol
 	diff <= threshold
 }
 
@@ -62,16 +62,16 @@ ten_pow_neg = |n| {
 # ----- tests -----
 
 # is_approx_eq tests — abs_tol = 1e-6
-expect is_approx_eq(1.0, 1.0) # exact
-expect is_approx_eq(1.0, 1.0000005) # diff ≈ 5e-7, clearly < 1e-6
-expect is_approx_eq(1.0, 0.9999995) # diff ≈ 5e-7, clearly < 1e-6
-expect !is_approx_eq(1.0, 1.00001) # diff ≈ 1e-5, clearly > 1e-6
-expect !is_approx_eq(1.0, 0.99999) # diff ≈ 1e-5, clearly > 1e-6
-expect !is_approx_eq(1.0, 0.5) # diff = 0.5, way out
+expect NumUtils.is_approx_eq(1.0, 1.0) # exact
+expect NumUtils.is_approx_eq(1.0, 1.0000005) # diff ≈ 5e-7, clearly < 1e-6
+expect NumUtils.is_approx_eq(1.0, 0.9999995) # diff ≈ 5e-7, clearly < 1e-6
+expect !NumUtils.is_approx_eq(1.0, 1.00001) # diff ≈ 1e-5, clearly > 1e-6
+expect !NumUtils.is_approx_eq(1.0, 0.99999) # diff ≈ 1e-5, clearly > 1e-6
+expect !NumUtils.is_approx_eq(1.0, 0.5) # diff = 0.5, way out
 
 # is_approx_eq_to_places tests — abs_tol = 10^-places
-expect is_approx_eq_to_places(1.0, 1.0, 10) # exact, even at strict tol
-expect is_approx_eq_to_places(1.0, 1.0000001, 5) # diff ≈ 1e-7, well within 10^-5
-expect !is_approx_eq_to_places(1.0, 1.0001, 5) # diff ≈ 1e-4, outside 10^-5
-expect is_approx_eq_to_places(1.0, 0.9999, 3) # diff ≈ 1e-4, well within 10^-3
-expect !is_approx_eq_to_places(1.0, 0.9999, 5) # diff ≈ 1e-4, outside 10^-5
+expect NumUtils.is_approx_eq_to_places(1.0, 1.0, 10) # exact, even at strict tol
+expect NumUtils.is_approx_eq_to_places(1.0, 1.0000001, 5) # diff ≈ 1e-7, well within 10^-5
+expect !NumUtils.is_approx_eq_to_places(1.0, 1.0001, 5) # diff ≈ 1e-4, outside 10^-5
+expect NumUtils.is_approx_eq_to_places(1.0, 0.9999, 3) # diff ≈ 1e-4, well within 10^-3
+expect !NumUtils.is_approx_eq_to_places(1.0, 0.9999, 5) # diff ≈ 1e-4, outside 10^-5
