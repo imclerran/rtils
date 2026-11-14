@@ -10,10 +10,10 @@ A collection of commonly used functions and types for Roc.
 
 __Compare__
 ```roc
-num_asc : number, number -> [LT, EQ, GT]
-num_desc : number, number -> [LT, EQ, GT]
-str_asc : Str, Str -> [LT, EQ, GT]
-str_desc : Str, Str -> [LT, EQ, GT]
+num_asc : number, number -> [Before, Same, After]
+num_desc : number, number -> [Before, Same, After]
+str_asc : Str, Str -> [Before, Same, After]
+str_desc : Str, Str -> [Before, Same, After]
 ```
 
 __ListUtils__

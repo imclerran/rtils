@@ -6,18 +6,18 @@ Compare :: [].{
 	## ```
 	## List.sort_with([3, 1, 2], Compare.num_asc) == [1, 2, 3]
 	## ```
-	num_asc : number, number -> [LT, EQ, GT]
+	num_asc : number, number -> [Before, Same, After]
 		where [
 			number.is_lt : number, number -> Bool,
 			number.is_gt : number, number -> Bool,
 		]
-	num_asc = |a, b| if (a < b) LT else if (a > b) GT else EQ
+	num_asc = |a, b| if (a < b) Before else if (a > b) After else Same
 
 	## Compare two numbers for sorting in descending order.
 	## ```
 	## List.sort_with([3, 1, 2], Compare.num_desc) == [3, 2, 1]
 	## ```
-	num_desc : number, number -> [LT, EQ, GT]
+	num_desc : number, number -> [Before, Same, After]
 		where [
 			number.is_lt : number, number -> Bool,
 			number.is_gt : number, number -> Bool,
@@ -28,9 +28,9 @@ Compare :: [].{
 	## ```
 	## List.sort_with(["apple", "Banana", "cherry"], Compare.str_asc) == ["Banana", "apple", "cherry"]
 	## ```
-	str_asc : Str, Str -> [LT, EQ, GT]
+	str_asc : Str, Str -> [Before, Same, After]
 	str_asc = |a, b| {
-		if (a == b) EQ
+		if (a == b) Same
 		else {
 			bytes_a = a.to_utf8()
 			bytes_b = b.to_utf8()
@@ -38,22 +38,22 @@ Compare :: [].{
 			_ = for byte_a in bytes_a {
 				match bytes_b.get($idx) {
 					Ok(byte_b) if byte_a < byte_b => {
-						return LT
+						return Before
 					}
 					Ok(byte_b) if byte_a > byte_b => {
-						return GT
+						return After
 					}
 					Ok(_) => {}
 					Err(OutOfBounds) => {
-						return GT
+						return After
 					}
 				}
 				$idx = $idx + 1
 			}
 			if bytes_a.len() < bytes_b.len() {
-				return LT
+				return Before
 			}
-			EQ
+			Same
 		}
 	}
 
@@ -61,27 +61,32 @@ Compare :: [].{
 	## ```
 	## List.sort_with(["apple", "Banana", "cherry"], Compare.str_desc) == ["cherry", "apple", "Banana"]
 	## ```
-	str_desc : Str, Str -> [LT, EQ, GT]
+	str_desc : Str, Str -> [Before, Same, After]
 	str_desc = |a, b| str_asc(b, a)
 }
 
 # ----- tests -----
 
-expect Compare.str_asc("a", "b") == LT
-expect Compare.str_asc("b", "a") == GT
-expect Compare.str_asc("a", "a") == EQ
-expect Compare.str_asc("a", "aa") == LT
-expect Compare.str_asc("aa", "a") == GT
-expect Compare.str_asc("A", "a") == LT
-expect Compare.str_asc("a", "A") == GT
-expect Compare.str_asc("a", "Aa") == GT
-expect Compare.str_asc("Aa", "a") == LT
+expect Compare.str_asc("a", "b") == Before
+expect Compare.str_asc("b", "a") == After
+expect Compare.str_asc("a", "a") == Same
+expect Compare.str_asc("a", "aa") == Before
+expect Compare.str_asc("aa", "a") == After
+expect Compare.str_asc("A", "a") == Before
+expect Compare.str_asc("a", "A") == After
+expect Compare.str_asc("a", "Aa") == After
+expect Compare.str_asc("Aa", "a") == Before
 
-expect Compare.num_asc(1, 2) == LT
-expect Compare.num_asc(2, 1) == GT
-expect Compare.num_asc(1, 1) == EQ
-expect Compare.num_asc(-0.1, 0.1) == LT
-expect Compare.num_asc(0.1, -0.1) == GT
-expect Compare.num_asc(-1, -2) == GT
-expect Compare.num_asc(-2, -1) == LT
-expect Compare.num_asc(0, 0) == EQ
+expect Compare.num_asc(1, 2) == Before
+expect Compare.num_asc(2, 1) == After
+expect Compare.num_asc(1, 1) == Same
+expect Compare.num_asc(-0.1, 0.1) == Before
+expect Compare.num_asc(0.1, -0.1) == After
+expect Compare.num_asc(-1, -2) == After
+expect Compare.num_asc(-2, -1) == Before
+expect Compare.num_asc(0, 0) == Same
+
+expect List.sort_with([3, 1, 2], Compare.num_asc) == [1, 2, 3]
+expect List.sort_with([3, 1, 2], Compare.num_desc) == [3, 2, 1]
+expect List.sort_with(["apple", "Banana", "cherry"], Compare.str_asc) == ["Banana", "apple", "cherry"]
+expect List.sort_with(["apple", "Banana", "cherry"], Compare.str_desc) == ["cherry", "apple", "Banana"]
